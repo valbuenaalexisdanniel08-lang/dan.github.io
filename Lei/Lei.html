@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will You Be My Valentine, Lei Nicole?</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: fadeIn 1.2s ease;
+    }
+
+    h1 { font-size: 2.2rem; margin-bottom: 10px; }
+    h2 { margin: 10px 0 20px; }
+    p { font-size: 1.1rem; margin-bottom: 16px; }
+
+    button {
+      font-size: 1rem;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      margin: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .yes { background: #ff2f6d; color: white; }
+    .no { background: rgba(255,255,255,0.85); color: #ff2f6d; position: absolute; }
+
+    button:hover { transform: scale(1.08); }
+    .hidden { display: none; }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dramatic {
+      opacity: 0;
+      animation: textPop 1.2s ease forwards;
+    }
+
+    @keyframes textPop {
+      0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+      60% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .love {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-top: 12px;
+      animation: loveReveal 1.2s ease forwards, glow 2s ease-in-out infinite;
+    }
+
+    @keyframes loveReveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glow {
+      0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.4); }
+      50% { text-shadow: 0 0 22px rgba(255,255,255,0.9); }
+    }
+
+    /* Cat */
+    .cat-wrap { position: relative; display: inline-block; }
+
+    .cat {
+      width: 100%;
+      border-radius: 16px;
+      margin: 20px 0;
+      animation: bounce 1.5s ease infinite;
+    }
+
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .blush {
+      position: absolute;
+      width: 28px;
+      height: 18px;
+      background: rgba(255,105,135,0.7);
+      border-radius: 50%;
+      filter: blur(1px);
+      animation: blushPulse 1.2s ease-in-out infinite;
+    }
+
+    .blush.left { left: 22%; top: 58%; }
+    .blush.right { right: 22%; top: 58%; }
+
+    @keyframes blushPulse {
+      0%,100% { opacity: 0.5; }
+      50% { opacity: 0.9; }
+    }
+
+    /* Hearts + sparkles */
+    .hearts span {
+      position: absolute;
+      bottom: -50px;
+      font-size: 24px;
+      animation: float 6s infinite ease-in;
+      opacity: 0.8;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translateY(-110vh); opacity: 0; }
+    }
+
+    .sparkles span {
+      position: absolute;
+      font-size: 14px;
+      opacity: 0;
+      animation: sparkle 1s ease forwards;
+    }
+
+    .sparkles span::before { content: '💖'; }
+
+    @keyframes sparkle {
+      0% { transform: scale(0) translateY(0); opacity: 0; }
+      40% { opacity: 1; }
+      100% { transform: scale(1.6) translateY(-30px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bgMusic" loop>
+    <source src="valentine.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="card" id="card">
+    <h1>Hey Lei Nicole ❤️</h1>
+    <p>Every day with you feels special, Lei Nicole…<br>So I have one important question.</p>
+    <h2>Will you be my Valentine?</h2>
+    <button class="yes" onclick="sayYes()">Yes 💖</button>
+    <button class="no" id="noBtn" onmouseover="moveNo()">No 🙈</button>
+  </div>
+
+  <div class="card hidden" id="yesCard">
+    <h1>YAY!!! 💘</h1>
+    <div class="cat-wrap">
+      <img src="cat-flowers.png" alt="Cute cat holding flowers" class="cat" />
+      <span class="blush left"></span>
+      <span class="blush right"></span>
+    </div>
+    <p class="dramatic">You just made me the happiest person ever.<br><em>Even this cat knew you’d say yes.</em> 😏💘</p>
+    <p id="finalLove" class="love hidden">I love you, Lei Nicole ❤️</p>
+    <button id="replayBtn" class="yes hidden" onclick="replay()">Replay 💞</button>
+  </div>
+
+  <div class="hearts" id="hearts"></div>
+  <div class="sparkles" id="sparkles"></div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+
+    function moveNo() {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight - 50);
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    }
+
+    function sayYes() {
+      document.getElementById('card').classList.add('hidden');
+      document.getElementById('yesCard').classList.remove('hidden');
+
+      const music = document.getElementById('bgMusic');
+      if (music) {
+        music.volume = 0.6;
+        music.play();
+      }
+
+      createHearts();
+      sparkleBurst();
+
+      setTimeout(() => {
+        document.getElementById('finalLove').classList.remove('hidden');
+        document.getElementById('replayBtn').classList.remove('hidden');
+        sparkleBurst();
+      }, 1800);
+    }
+
+    function replay() {
+      document.getElementById('yesCard').classList.add('hidden');
+      document.getElementById('card').classList.remove('hidden');
+      document.getElementById('finalLove').classList.add('hidden');
+      document.getElementById('replayBtn').classList.add('hidden');
+    }
+
+    function sparkleBurst() {
+      const s = document.getElementById('sparkles');
+      for (let i = 0; i < 18; i++) {
+        const sp = document.createElement('span');
+        sp.style.left = Math.random() * 100 + 'vw';
+        sp.style.top = (45 + Math.random() * 30) + 'vh';
+        s.appendChild(sp);
+        setTimeout(() => sp.remove(), 1000);
+      }
+    }
+
+    function createHearts() {
+      const heartsContainer = document.getElementById('hearts');
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement('span');
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+        heartsContainer.appendChild(heart);
+        setTimeout(() => heart.remove(), 7000);
+      }
+    }
+  </script>
+
+</body>
+</html>
